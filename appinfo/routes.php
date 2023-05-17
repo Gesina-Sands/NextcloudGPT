@@ -14,11 +14,19 @@ declare(strict_types=1);
 return [
 	'resources' => [
 		'note' => ['url' => '/notes'],
-		'note_api' => ['url' => '/api/0.1/notes']
+		'note_api' => ['url' => '/api/0.1/notes'],
+		'openai_config' => ['url' => '/openai_configs'],
+		'openai_config_api' => ['url' => '/api/0.1/openai_configs'],
+		'message' => ['url' => '/message'],
+		'message_api' => ['url' => '/api/0.1/message']
 	],
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 		['name' => 'note_api#preflighted_cors', 'url' => '/api/0.1/{path}',
+			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+		['name' => 'openai_config_api#preflighted_cors', 'url' => '/api/0.1/{path}',
+			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+		['name' => 'message_api#preflighted_cors', 'url' => '/api/0.1/{path}',
 			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']]
 	]
 ];

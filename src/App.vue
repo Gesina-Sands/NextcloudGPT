@@ -1,6 +1,6 @@
 <template>
     <!--
-    SPDX-FileCopyrightText: Shannon Sands <shannon.sands.1979@gmail.com>
+    SPDX-FileCopyrightText: Gesina Sands <gesina.sands@gmail.com>
     SPDX-License-Identifier: AGPL-3.0-or-later
     -->
 	<div id="content" class="app-nextcloudgpt">
