@@ -20,16 +20,12 @@ use OCP\AppFramework\Db\Entity;
 class Message extends Entity implements JsonSerializable {
     protected string $message = '';
     protected string $role = '';
-    protected string $userId = '';
-    protected \DateTime $createdAt;
 
     public function jsonSerialize(): array {
         return [
             'id' => $this->id,
             'message' => $this->message,
             'role' => $this->role,
-            'userId' => $this->userId,
-            'created_at' => $this->createdAt->format(\DateTime::ATOM)
         ];
     }
 }

@@ -5,11 +5,11 @@ namespace OCA\NextcloudGPT\Controller;
 
 use OCA\NextcloudGPT\AppInfo\Application;
 use OCA\NextcloudGPT\Service\MessageService;
-use OCP\AppFramework\ApiController;
+use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
-class MessageApiController extends ApiController {
+class MessageController extends Controller {
     private MessageService $service;
     private ?string $userId;
 
@@ -24,54 +24,48 @@ class MessageApiController extends ApiController {
     }
 
     /**
-     * @CORS
-     * @NoCSRFRequired
      * @NoAdminRequired
+	 * @NoCSRFRequired
      */
     public function index(): DataResponse {
-        return new DataResponse($this->service->findAll($this->userId));
+        return new DataResponse($this->service->findAll());
     }
 
     /**
-     * @CORS
-     * @NoCSRFRequired
      * @NoAdminRequired
+	 * @NoCSRFRequired
      */
     public function show(int $id): DataResponse {
         return $this->handleNotFound(function () use ($id) {
-            return $this->service->find($id, $this->userId);
+            return $this->service->find($id);
         });
     }
 
     /**
-     * @CORS
-     * @NoCSRFRequired
      * @NoAdminRequired
+	 * @NoCSRFRequired
      */
     public function create(string $message, string $role): DataResponse {
-        return new DataResponse($this->service->create($message, $role,
-            $this->userId));
+        return new DataResponse($this->service->create($message, $role));
     }
 
     /**
-     * @CORS
-     * @NoCSRFRequired
      * @NoAdminRequired
+	 * @NoCSRFRequired
      */
     public function update(int $id, string $message, string $role): DataResponse {
         return $this->handleNotFound(function () use ($id, $message, $role) {
-            return $this->service->update($id, $message, $role, $this->userId);
+            return $this->service->update($id, $message, $role);
         });
     }
 
     /**
-     * @CORS
-     * @NoCSRFRequired
      * @NoAdminRequired
+	 * @NoCSRFRequired
      */
     public function destroy(int $id): DataResponse {
         return $this->handleNotFound(function () use ($id) {
-            return $this->service->delete($id, $this->userId);
+            return $this->service->delete($id);
         });
     }
 }

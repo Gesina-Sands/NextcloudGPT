@@ -17,8 +17,8 @@ return [
 		'note_api' => ['url' => '/api/0.1/notes'],
 		'openai_config' => ['url' => '/openai_configs'],
 		'openai_config_api' => ['url' => '/api/0.1/openai_configs'],
-		'message' => ['url' => '/message'],
-		'message_api' => ['url' => '/api/0.1/message']
+		'message' => ['url' => '/messages'],
+		'message_api' => ['url' => '/api/0.1/messages']
 	],
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],

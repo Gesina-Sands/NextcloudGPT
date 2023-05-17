@@ -4,19 +4,19 @@ declare(strict_types=1);
 namespace OCA\NextcloudGPT\Controller;
 
 use OCA\NextcloudGPT\AppInfo\Application;
-use OCA\NextcloudGPT\Service\MessageService;
+use OCA\NextcloudGPT\Service\OpenAIConfigService;
 use OCP\AppFramework\ApiController;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
-class MessageApiController extends ApiController {
-    private MessageService $service;
+class OpenAIConfigApiController extends ApiController {
+    private OpenAIConfigService $service;
     private ?string $userId;
 
     use Errors;
 
     public function __construct(IRequest $request,
-                                MessageService $service,
+                                OpenAIConfigService $service,
                                 ?string $userId) {
         parent::__construct(Application::APP_ID, $request);
         $this->service = $service;
@@ -48,9 +48,8 @@ class MessageApiController extends ApiController {
      * @NoCSRFRequired
      * @NoAdminRequired
      */
-    public function create(string $message, string $role): DataResponse {
-        return new DataResponse($this->service->create($message, $role,
-            $this->userId));
+    public function create(string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength): DataResponse {
+        return new DataResponse($this->service->create($apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength, $this->userId));
     }
 
     /**
@@ -58,9 +57,9 @@ class MessageApiController extends ApiController {
      * @NoCSRFRequired
      * @NoAdminRequired
      */
-    public function update(int $id, string $message, string $role): DataResponse {
-        return $this->handleNotFound(function () use ($id, $message, $role) {
-            return $this->service->update($id, $message, $role, $this->userId);
+    public function update(int $id, string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength): DataResponse {
+        return $this->handleNotFound(function () use ($id, $apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength) {
+            return $this->service->update($id, $apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength, $this->userId);
         });
     }
 

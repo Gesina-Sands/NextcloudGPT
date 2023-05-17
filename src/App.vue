@@ -61,9 +61,9 @@
 		<AppContent>
             <div id="chat-container">
                 <div class="messages-container">
-                    <div v-for="(message, index) in messages" :key="index" :class="message.sender">
-                        {{ message.text }}
-                    </div>
+                    <div v-for="(message, index) in messages" :key="index" :class="message.role">
+						{{ message.message }}
+					</div>
                 </div>
                 <div class="input-container">
                     <input ref="userInput" v-model="userInput" type="text" @keyup.enter="sendMessage">
@@ -79,6 +79,11 @@ import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
 import AppContent from '@nextcloud/vue/dist/Components/AppContent'
 import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
+
+import '@nextcloud/dialogs/styles/toast.scss'
+import { generateUrl } from '@nextcloud/router'
+import { showError, showSuccess } from '@nextcloud/dialogs'
+import axios from '@nextcloud/axios'
 
 export default {
 	name: 'App',
@@ -102,7 +107,36 @@ export default {
 			userInput: '',
 		}
 	},
+	/**
+	 * Fetch list of messages when the component is loaded
+	 */
+	async mounted() {
+		try {
+			const response = await axios.get(generateUrl('/apps/nextcloudgpt/messages'));
+			console.log('Response: ', response.data[0]);
+			for (let i = 0; i < response.data.length; i++) {
+				this.messages.push(response.data[i]);
+			}
+		} catch (e) {
+			console.error(e);
+			showError(t('nextcloudgpt', 'Could not fetch messages'));
+		}
+		this.loading = false
+	},
 	methods: {
+		async saveMessage(message, role) {
+			try {
+				const response = await axios.post(generateUrl('/apps/nextcloudgpt/messages'), {
+					message: message,
+					role: role
+				});
+				// assuming response.data is an array of messages
+				this.messages.push(...response.data);
+			} catch (e) {
+				console.error(e);
+				showError(t('nextcloudgpt', 'Could not save the message'));
+			}
+    	},
         saveConfig() {
 			// Save API key and model configuration here
 			// localStorage.setItem('apiKey', this.apiKey)
@@ -111,13 +145,12 @@ export default {
 			this.showModal = false
 		},
         sendMessage() {
-            // Send user input to backend and display response
-            // Example: send user input to backend, get bot response, and update messages array
-            this.messages.push({sender: 'user', text: this.userInput})
-            this.userInput = ''
-            // Example: get bot response and update messages array
-            // this.messages.push({sender: 'bot', text: 'Bot response'})
-        },
+			// Send user input to backend and display response
+			this.saveMessage(this.userInput, 'user');
+			this.userInput = '';
+			// Example: get bot response and update messages array
+			// this.messages.push({ sender: 'bot', text: 'Bot response' });
+		},
 	},
 }
 </script>
