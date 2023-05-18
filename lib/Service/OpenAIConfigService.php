@@ -19,8 +19,8 @@ class OpenAIConfigService {
     /**
      * @return list<OpenAIConfig>
      */
-    public function findAll(string $userId): array {
-        return $this->mapper->findAll($userId);
+    public function findAll(): array {
+        return $this->mapper->findAll();
     }
 
     private function handleException(Exception $e) {
@@ -52,9 +52,9 @@ class OpenAIConfigService {
         return $this->mapper->insert($config);
     }
 
-    public function update(int $id, string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength, string $userId): OpenAIConfig {
+    public function update(int $id, string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength): OpenAIConfig {
         try {
-            $config = $this->mapper->find($id, $userId);
+            $config = $this->mapper->find($id);
             $config->setApiKey($apiKey);
             $config->setSelectedModel($selectedModel);
             $config->setTopP($topP);
@@ -68,9 +68,38 @@ class OpenAIConfigService {
         }
     }
 
-    public function delete(int $id, string $userId): OpenAIConfig {
+	public function upsert(string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength): OpenAIConfig {
         try {
-            $config = $this->mapper->find($id, $userId);
+            // try to find existing config
+            $config = $this->findAll()[0];
+        } catch (OpenAIConfigNotFound $e) {
+            // if not found, create a new one
+            $config = new OpenAIConfig();
+        }
+		if($config === null) {
+			$config = new OpenAIConfig();
+		}
+
+        $config->setApiKey($apiKey);
+        $config->setSelectedModel($selectedModel);
+        $config->setTopP($topP);
+        $config->setFrequencyPenalty($frequencyPenalty);
+        $config->setMaxLength($maxLength);
+        $config->setPresencePenalty($presencePenalty);
+        $config->setTokenLength($tokenLength);
+
+        if ($config->getId() === null) {
+            // if id is null, insert
+            return $this->mapper->insert($config);
+        } else {
+            // if id is not null, update
+            return $this->mapper->update($config);
+        }
+    }
+
+    public function delete(int $id): OpenAIConfig {
+        try {
+            $config = $this->mapper->find($id);
             $this->mapper->delete($config);
             return $config;
         } catch (Exception $e) {

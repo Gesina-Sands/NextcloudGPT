@@ -59,7 +59,7 @@ class OpenAIConfigApiController extends ApiController {
      */
     public function update(int $id, string $apiKey, string $selectedModel, float $topP, int $frequencyPenalty, int $maxLength, int $presencePenalty, int $tokenLength): DataResponse {
         return $this->handleNotFound(function () use ($id, $apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength) {
-            return $this->service->update($id, $apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength, $this->userId);
+            return $this->service->upsert($id, $apiKey, $selectedModel, $topP, $frequencyPenalty, $maxLength, $presencePenalty, $tokenLength, $this->userId);
         });
     }
 

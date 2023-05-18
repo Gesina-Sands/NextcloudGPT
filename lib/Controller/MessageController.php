@@ -68,4 +68,12 @@ class MessageController extends Controller {
             return $this->service->delete($id);
         });
     }
+
+	/**
+     * @NoAdminRequired
+	 * @NoCSRFRequired
+     */
+	public function deleteAll() {
+		return $this->service->deleteAll();
+	}
 }

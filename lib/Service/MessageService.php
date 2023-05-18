@@ -8,12 +8,14 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCA\NextcloudGPT\Db\Message;
 use OCA\NextcloudGPT\Db\MessageMapper;
+use OCA\NextcloudGPT\Db\OpenAIConfigMapper;
 
 class MessageService {
     private MessageMapper $mapper;
 
-    public function __construct(MessageMapper $mapper) {
+    public function __construct(MessageMapper $mapper, OpenAIConfigMapper $configMapper) {
         $this->mapper = $mapper;
+		$this->configMapper = $configMapper;
     }
 
     /**
@@ -44,28 +46,41 @@ class MessageService {
 	 * @ return list<Message>
 	 */
     public function create(string $message, string $role) {
-        $msg = new Message();
-        $msg->setMessage($message);
-        $msg->setRole($role);
-        $user_message = $this->mapper->insert($msg);
+		$msg = new Message();
+		$msg->setMessage($message);
+		$msg->setRole($role);
+		$user_message = $this->mapper->insert($msg);
+
 		try {
-		// 	// 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
-			$apiKey = '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';
-			$model = 'gpt-3.5-turbo';
+			// Fetch the OpenAI config
+			$config = $this->configMapper->findAll()[0]; // take the first one
+			$apiKey = $config->getApiKey();
+			$model = $config->getSelectedModel();
+
 			$messages = array(
-				array('role' => 'system', 'content' => 'You are a helpful chatbot next inside the Nextcloud platform'),
-				array('role' => 'user', 'content' => $message)
+				array('role' => 'system', 'content' => 'You are a helpful chatbot embedded inside the Nextcloud platform. You are filled with a joyous whimsy and a desire to help others.'),
 			);
+
+			// Fetch the last 10 messages and add them to the messages array
+			$last_messages = array_slice($this->findAll(), -10);
+			foreach($last_messages as $msg) {
+				array_push($messages, array('role' => $msg->getRole(), 'content' => $msg->getMessage()));
+			}
+
+			// Add the current user message
+			array_push($messages, array('role' => 'user', 'content' => $message));
 
 			$result = $this->callOpenAI($apiKey, $model, $messages);
 			$bot_msg = new Message();
 			$bot_msg->setMessage($result['choices'][0]['message']['content']); // Set the assistant's message
 			$bot_msg->setRole("assistant");
+			$bot_msg = $this->mapper->insert($bot_msg);
 			return [$user_message, $bot_msg];
 		} catch(Exception $e){
 			echo 'Error: ' .$e->getMessage();
 		}
-    }
+	}
+
 
     public function update(int $id, string $message, string $role): Message {
         try {
@@ -117,6 +132,10 @@ class MessageService {
 		curl_close($ch);
 
 		return json_decode($response, true);
+	}
+
+	public function deleteAll() {
+		return $this->mapper->deleteAll();
 	}
 
 }

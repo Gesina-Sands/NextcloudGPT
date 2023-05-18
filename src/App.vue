@@ -43,6 +43,11 @@
 				</form>
 			</div>
 		</Modal>
+		<Modal v-if="isLoading">
+			<div class="loading-indicator">
+        		Generating response...
+    		</div>
+		</Modal>
 		<AppNavigation>
 			<ActionButton icon="icon-settings" @click="showModal = true">
 				{{ t('nextcloudgpt', 'API Config') }}
@@ -56,6 +61,17 @@
 				<div>{{ t('nextcloudgpt', 'Max Length') }}: {{ maxLength }}</div>
 				<div>{{ t('nextcloudgpt', 'Presence Penalty') }}: {{ presencePenalty }}</div>
 				<div>{{ t('nextcloudgpt', 'Token Length') }}: {{ tokenLength }}</div>
+			</div>
+			<ActionButton icon="icon-delete" @click="deleteAllMessages">
+				{{ t('nextcloudgpt', 'Delete All Messages') }}
+			</ActionButton>
+			<div>
+				<h3>All Notes</h3>
+				<ul>
+				<li v-for="note in notes" :key="note.id">
+					{{ note.title }}
+				</li>
+				</ul>
 			</div>
 		</AppNavigation>
 		<AppContent>
@@ -72,6 +88,7 @@
             </div>
 		</AppContent>
 	</div>
+
 </template>
 
 <script>
@@ -105,6 +122,7 @@ export default {
 			tokenLength: 4096,
 			messages: [],
 			userInput: '',
+			isLoading: false
 		}
 	},
 	/**
@@ -113,10 +131,10 @@ export default {
 	async mounted() {
 		try {
 			const response = await axios.get(generateUrl('/apps/nextcloudgpt/messages'));
-			console.log('Response: ', response.data[0]);
 			for (let i = 0; i < response.data.length; i++) {
 				this.messages.push(response.data[i]);
 			}
+			await this.loadConfig();
 		} catch (e) {
 			console.error(e);
 			showError(t('nextcloudgpt', 'Could not fetch messages'));
@@ -124,7 +142,36 @@ export default {
 		this.loading = false
 	},
 	methods: {
+		async deleteAllMessages() {
+			try {
+				this.isLoading = true;
+				const response = await axios.delete(generateUrl('/apps/nextcloudgpt/delete-all'));
+				this.messages = [];
+				this.isLoading = false;
+			} catch (e) {
+				console.error(e);
+				showError(t('nextcloudgpt', 'Could not delete all messages'));
+			}
+		},
+		async loadConfig() {
+			try {
+				const response = await axios.get(generateUrl('/apps/nextcloudgpt/openai_configs'));
+				if (response.data.length > 0) {
+					let config  = response.data[0];
+					this.apiKey = config.apiKey;
+					this.selectedModel = config.selectedModel;
+					this.topP = config.topP;
+					this.frequencyPenalty = config.frequencyPenalty;
+					this.maxLength = config.maxLength;
+					this.presencePenalty = config.presencePenalty;
+					this.tokenLength = config.tokenLength;
+				}
+			} catch (error) {
+				console.error(error);
+			}
+			},
 		async saveMessage(message, role) {
+			this.isLoading = true;
 			try {
 				const response = await axios.post(generateUrl('/apps/nextcloudgpt/messages'), {
 					message: message,
@@ -136,12 +183,27 @@ export default {
 				console.error(e);
 				showError(t('nextcloudgpt', 'Could not save the message'));
 			}
+			this.isLoading = false;
     	},
-        saveConfig() {
+        async saveConfig() {
 			// Save API key and model configuration here
 			// localStorage.setItem('apiKey', this.apiKey)
 			// Example: localStorage.setItem('selectedModel', this.selectedModel)
 			// Save other settings as needed
+			try {
+				const config = {
+				apiKey: this.apiKey,
+				selectedModel: this.selectedModel,
+				topP: this.topP,
+				frequencyPenalty: this.frequencyPenalty,
+				maxLength: this.maxLength,
+				presencePenalty: this.presencePenalty,
+				tokenLength: this.tokenLength,
+				};
+				await axios.put(generateUrl('/apps/nextcloudgpt/openai_configs'), config);
+			} catch (error) {
+				console.error(error);
+			}
 			this.showModal = false
 		},
         sendMessage() {
@@ -246,4 +308,15 @@ export default {
 		margin-top: 10px;
 		padding: 5px;
 	}
+
+	.loading-indicator {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    }
 </style>

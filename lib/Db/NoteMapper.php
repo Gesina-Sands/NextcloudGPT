@@ -16,33 +16,30 @@ use OCP\IDBConnection;
  */
 class NoteMapper extends QBMapper {
 	public function __construct(IDBConnection $db) {
-		parent::__construct($db, 'nextcloudgpt', Note::class);
+		parent::__construct($db, 'notes', Note::class);
 	}
 
 	/**
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
 	 */
-	public function find(int $id, string $userId): Note {
+	public function find(int $id): Note {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
-			->from('nextcloudgpt')
-			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+			->from('notes')
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
 		return $this->findEntity($qb);
 	}
 
 	/**
-	 * @param string $userId
 	 * @return array
 	 */
-	public function findAll(string $userId): array {
+	public function findAll(): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
-			->from('nextcloudgpt')
-			->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+			->from('notes');
 		return $this->findEntities($qb);
 	}
 }

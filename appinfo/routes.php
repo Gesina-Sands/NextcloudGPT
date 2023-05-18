@@ -27,6 +27,8 @@ return [
 		['name' => 'openai_config_api#preflighted_cors', 'url' => '/api/0.1/{path}',
 			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
 		['name' => 'message_api#preflighted_cors', 'url' => '/api/0.1/{path}',
-			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']]
+			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+		['name' => 'message#deleteAll', 'url' => '/delete-all', 'verb' => 'DELETE'],
+		['name' => 'openai_config#upsert', 'url' => '/openai_configs', 'verb' => 'PUT'],
 	]
 ];

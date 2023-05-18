@@ -4,29 +4,28 @@ declare(strict_types=1);
 namespace OCA\NextcloudGPT\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\Entity;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
- * @template-extends QBMapper<Message>
+ * @template-extends QBMapper<OpenAIConfig>
  */
-class MessageMapper extends QBMapper {
+class OpenAIConfigMapper extends QBMapper {
     public function __construct(IDBConnection $db) {
-        parent::__construct($db, 'open_ai_messages', Message::class);
+        parent::__construct($db, 'openai_api_configs', OpenAIConfig::class);
     }
 
     /**
-     * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
      * @throws DoesNotExistException
+     * @throws MultipleObjectsReturnedException
      */
-    public function find(int $id): Message {
+    public function find(): OpenAIConfig {
         /* @var $qb IQueryBuilder */
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
-            ->from('open_ai_messages')
-            ->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+            ->from('openai_api_configs');
         return $this->findEntity($qb);
     }
 
@@ -38,14 +37,7 @@ class MessageMapper extends QBMapper {
         /* @var $qb IQueryBuilder */
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
-            ->from('open_ai_messages');
+            ->from('openai_api_configs');
         return $this->findEntities($qb);
     }
-
-	public function deleteAll() {
-		/* @var $qb IQueryBuilder */
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete('open_ai_messages');
-		return $qb->execute();
-	}
 }
