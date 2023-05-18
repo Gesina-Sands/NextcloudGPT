@@ -6,7 +6,7 @@
     SPDX-License-Identifier: CC0-1.0
     -->
     <id>nextcloudgpt</id>
-    <name>Nextcloud G P T</name>
+    <name>NextcloudGPT</name>
     <summary>Adds ChatGPT integration to NextCloud &amp; allows for it to talk to your Notes</summary>
     <description><![CDATA[Adds ChatGPT integration to NextCloud &amp; allows for it to talk to your Notes]]></description>
     <version>0.0.1</version>
@@ -20,7 +20,7 @@
     </dependencies>
     <navigations>
         <navigation>
-            <name>Nextcloud G P T</name>
+            <name>NextcloudGPT</name>
             <route>nextcloudgpt.page.index</route>
         </navigation>
     </navigations>
