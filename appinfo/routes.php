@@ -18,7 +18,8 @@ return [
 		'openai_config' => ['url' => '/openai_configs'],
 		'openai_config_api' => ['url' => '/api/0.1/openai_configs'],
 		'message' => ['url' => '/messages'],
-		'message_api' => ['url' => '/api/0.1/messages']
+		'message_api' => ['url' => '/api/0.1/messages'],
+		'system_prompt' => ['url' => '/system_prompts'],
 	],
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
@@ -28,7 +29,11 @@ return [
 			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
 		['name' => 'message_api#preflighted_cors', 'url' => '/api/0.1/{path}',
 			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+		['name' => 'system_prompt_api#preflighted_cors', 'url' => '/api/0.1/{path}',
+			'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
 		['name' => 'message#deleteAll', 'url' => '/delete-all', 'verb' => 'DELETE'],
 		['name' => 'openai_config#upsert', 'url' => '/openai_configs', 'verb' => 'PUT'],
+		['name' => 'system_prompt#upsert', 'url' => '/system_prompts', 'verb' => 'PUT'],
+
 	]
 ];
