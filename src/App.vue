@@ -4,7 +4,7 @@
     SPDX-License-Identifier: AGPL-3.0-or-later
     -->
 	<div id="content" class="app-nextcloudgpt">
-		<Modal v-if="showModal" @close="showModal = false">
+		<Modal v-if="showConfigModal" @close="showConfigModal = false">
 			<div id="config-container">
 				<h2>{{ t('nextcloudgpt', 'OpenAI Configuration') }}</h2>
 				<div class="input-group">
@@ -109,6 +109,10 @@
 			<ActionButton icon="icon-add" @click="showPromptModal = true">
 				{{ t('nextcloudgpt', 'Add System Prompt') }}
 			</ActionButton>
+			<div><strong>{{ t('nextcloudgpt', 'Current System Prompt:') }}</strong></div>
+			<div class="system-prompt-display">
+				{{ systemPrompt ?? t('nextcloudgpt', 'No system prompt set') }}
+			</div>
 			<ActionButton icon="icon-delete" @click="deleteAllMessages">
 				{{ t('nextcloudgpt', 'Delete All Messages') }}
 			</ActionButton>
@@ -175,6 +179,7 @@ export default {
 			messages: [],
 			userInput: '',
 			isLoading: false,
+			systemPrompt: null,
 		}
 	},
 	/**
@@ -278,7 +283,7 @@ export default {
 			} catch (error) {
 				console.error(error)
 			}
-			this.showModal = false
+			this.showConfigModal = false
 		},
 		sendMessage() {
 			// Send user input to backend and display response
@@ -398,4 +403,11 @@ export default {
 		width: 100%;
 		margin: 1rem;
 	}
+
+	.system-prompt-display {
+		max-height: 200px;
+		overflow-y: auto;
+		padding: 5px;
+	}
+
 </style>

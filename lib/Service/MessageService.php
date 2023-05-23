@@ -13,9 +13,14 @@ use OCA\NextcloudGPT\Db\OpenAIConfigMapper;
 class MessageService {
     private MessageMapper $mapper;
 
-    public function __construct(MessageMapper $mapper, OpenAIConfigMapper $configMapper) {
+    public function __construct(
+		MessageMapper $mapper,
+		OpenAIConfigMapper $configMapper,
+		SystemPromptService $promptService
+		) {
         $this->mapper = $mapper;
 		$this->configMapper = $configMapper;
+		$this->promptService = $promptService;
     }
 
     /**
@@ -57,8 +62,18 @@ class MessageService {
 			$apiKey = $config->getApiKey();
 			$model = $config->getSelectedModel();
 
+			$system_prompt = $this->promptService->findAll()[0]; // take the first one
+			$system_prompt = $system_prompt->getPrompt();
+
+			// If the system prompt is empty, fallback to default
+			if (empty($system_prompt)) {
+				$system_prompt = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.";
+			}
+
 			$messages = array(
-				array('role' => 'system', 'content' => 'You are a helpful chatbot embedded inside the Nextcloud platform. You are filled with a joyous whimsy and a desire to help others.'),
+				array(
+					'role' => 'system',
+					'content' => $system_prompt),
 			);
 
 			// Fetch the last 10 messages and add them to the messages array
